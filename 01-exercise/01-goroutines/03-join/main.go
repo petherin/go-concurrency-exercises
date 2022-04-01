@@ -14,7 +14,7 @@ func main() {
 	var wg sync.WaitGroup
 
 	wg.Add(1)
-	
+
 	// This never doesn't get the chance to run unless we use a WaitGroup
 	go func() {
 		defer wg.Done()
