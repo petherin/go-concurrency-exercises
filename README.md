@@ -25,3 +25,19 @@ Closing a nil channel panics.
 Owner of channel is a goroutine that instantiates, writes and closes a channel.
 
 Channel users should only have a read view into the channel.
+
+### Select
+
+All `select` cases are considered simultaneously.
+
+`select` waits until a case is ready to proceed.
+
+If waiting for multiple channels in a `select` and more than one is ready, one will be picked at random.
+
+`select`s useful for timeouts so long-running channels don't hold things up.
+
+A `select` can be non-blocking if there's a `default` case. If a channel isn't ready in the `select` then a `default` case will exit the block without blocking.
+
+Empty `select` blocks forever.
+
+A nil channel in a `select` also blocks forever.
