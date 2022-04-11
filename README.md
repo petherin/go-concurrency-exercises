@@ -41,3 +41,25 @@ A `select` can be non-blocking if there's a `default` case. If a channel isn't r
 Empty `select` blocks forever.
 
 A nil channel in a `select` also blocks forever.
+
+### Sync Package
+
+#### Mutex
+
+`Lock` and `Unlock` resources you want to be concurrent-safe.
+
+To allow multiple reads, but with writes that hold a lock exclusively, use `RLock` and `RUnlock`.
+
+#### Atomic
+
+Atomic package can update variables in a concurrent-safe way.
+
+#### Cond
+
+Orchestrates goroutines that are waiting for a condition to be true.
+
+`Wait` will suspend goroutine execution until a condition is met. You won't be able to stop on a breakpoint on a `Wait()` line because the entire goroutine is suspended, as opposed to simply blocking at that line.
+
+`Signal` wakes one goroutine waiting on the `cond` variable.
+
+`Broadcast` wakes all goroutiones waiting on the `cond` variable.
