@@ -69,3 +69,15 @@ Orchestrates goroutines that are waiting for a condition to be true.
 `sync.Once` ensures only one call to `Do(funcValue)` ever calls the passed function, even on different goroutines.
 
 This is good for things like Singletons, or resources that multiple goroutines need but that only need to be initialised once.
+
+#### Pool
+
+Used to constrain the creation of expensive resources like db connections, network connections, and memory.
+
+Maintains a pool of a fixed number of resources that can be reused.
+
+Code `Get`s resource from the pool and when finished, `Put`s it back in the pool for other code to use.
+
+
+
+
