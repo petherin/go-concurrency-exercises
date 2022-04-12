@@ -63,3 +63,9 @@ Orchestrates goroutines that are waiting for a condition to be true.
 `Signal` wakes one goroutine waiting on the `cond` variable.
 
 `Broadcast` wakes all goroutiones waiting on the `cond` variable.
+
+#### Once
+
+`sync.Once` ensures only one call to `Do(funcValue)` ever calls the passed function, even on different goroutines.
+
+This is good for things like Singletons, or resources that multiple goroutines need but that only need to be initialised once.
