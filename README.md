@@ -78,6 +78,18 @@ Maintains a pool of a fixed number of resources that can be reused.
 
 Code `Get`s resource from the pool and when finished, `Put`s it back in the pool for other code to use.
 
+### Go Race Dectector
 
+Race detector find race conditions in Go code.
 
+`go test -race mypkg`
 
+`go run -race mysrc.go`
+
+`go build -race mycmd`. If you then execute the resulting build e.g. `./mycmd` any data races will be shown.
+
+`go install -race mypkg`
+
+Binary needs to be race-enabled so race detector can work on it.
+
+Race-enabled binaries can be 10 times slower and use 10 times more memory, so don't release to production, use during testing phase.
