@@ -93,3 +93,24 @@ Race detector find race conditions in Go code.
 Binary needs to be race-enabled so race detector can work on it.
 
 Race-enabled binaries can be 10 times slower and use 10 times more memory, so don't release to production, use during testing phase.
+
+### Concurrency Patterns
+#### Pipeline
+
+Used to process streams or batches of data. It's a series of stages connected by channels.
+
+Each stage is represented by a goroutine.
+
+![Pipeline Pattern](files/pipeline.png "Pipeline Pattern")
+
+Goroutines can have the same input and output parameters, meaning we can chain them together however we want.
+
+For example, we could do `square(decrement(square(ch)))`.
+
+Separating stages out provides us with good separation of concerns.
+
+If a stage is taking a long time we can increase the number of goroutines for that stage.
+
+
+
+
