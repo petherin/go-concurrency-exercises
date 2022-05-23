@@ -18,6 +18,9 @@
   * [Pipeline](#pipeline)
   * [Fan-out, Fan-in](#fan-out-fan-in)
   * [Cancellation of Goroutines](#cancellation-of-goroutines)
+- [Context Package](#context-package)
+  * [Cancellation Functions](#cancellation-functions)
+  * [Data Functions](#data-functions)
 
 <!-- tocstop -->
 
@@ -162,3 +165,40 @@ We can pass a read-only `done` channel to goroutines.
 Then we can close the channel to send broadcast signal to all goroutines.
 
 On receiving the signal on `done` channel, goroutines need to abandon work and terminate.
+
+## Context Package
+
+Serves two primary purposes.
+
+* Provides API's for cancelling branches of the call graph (i.e. the calls made during a given request).
+* Provides a data bag for transporting request-scoped data through the call graph.
+
+### Cancellation Functions
+
+`context.Background()` returns an empty context, it's the root of any context tree.
+
+`context.TODO()` returns an empty context, intended to be a placeholder.
+
+`ctx, cancel := context.WithCancel(context.Background())` returns a copy of parent context with a new Done channel. The returned `cancel` allows us to close the context's Done channel.
+
+`cancel()` doesn't wait for anything, it just closes the Done channel and returns. It can be called by many goroutines simultaneously, but after the first call, it doesn't do anything.
+
+`context.WithDeadline()` takes parent context and a time as input. It returns a new context that closes its Done channel when the machine's clock advances past the deadline.
+
+`ctx.Deadline()` tells us if a deadline is associated with the context.
+
+`context.WithTimeout()` takes parent context and a time duration as input. It returns a new context that closes its Done channel when the given duration expires.
+
+`WithTimeout` is actually a wrapper around `WithDeadline`. What's the difference? 
+
+`WithTimeout()`'s timer countdown begins from the moment the context is created.
+
+`WithDeadine` sets an explicit time when timer will expire.
+
+### Data Functions
+
+`context.WithValue()` associates request-scoped values with a context.
+
+`ctx.Value()` returns the value associated with the provided key.
+
+
