@@ -1,5 +1,26 @@
 # Go concurrency exercises
 
+<!-- `make toc` to generate https://github.com/jonschlinkert/markdown-toc#cli -->
+
+<!-- toc -->
+
+- [Notes](#notes)
+  * [OS Threads and Goroutines](#os-threads-and-goroutines)
+  * [Channels](#channels)
+  * [Select](#select)
+  * [Sync Package](#sync-package)
+    + [Mutex](#mutex)
+    + [Atomic](#atomic)
+    + [Cond](#cond)
+    + [Once](#once)
+    + [Pool](#pool)
+  * [Go Race Dectector](#go-race-dectector)
+  * [Concurrency Patterns](#concurrency-patterns)
+    + [Pipeline](#pipeline)
+    + [Fan-out, Fan-in](#fan-out-fan-in)
+
+<!-- tocstop -->
+
 Exercises and code walks included in this repository are part of Udemy course "concurrency in Go (Golang)".
 
 https://www.udemy.com/course/concurrency-in-go-golang/?referralCode=5AE5A041D5793C048954
