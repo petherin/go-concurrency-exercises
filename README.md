@@ -200,5 +200,3 @@ Serves two primary purposes.
 `context.WithValue()` associates request-scoped values with a context.
 
 `ctx.Value()` returns the value associated with the provided key.
-
-
