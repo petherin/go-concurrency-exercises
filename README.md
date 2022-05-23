@@ -4,32 +4,30 @@
 
 <!-- toc -->
 
-- [Notes](#notes)
-  * [OS Threads and Goroutines](#os-threads-and-goroutines)
-  * [Channels](#channels)
-  * [Select](#select)
-  * [Sync Package](#sync-package)
-    + [Mutex](#mutex)
-    + [Atomic](#atomic)
-    + [Cond](#cond)
-    + [Once](#once)
-    + [Pool](#pool)
-  * [Go Race Dectector](#go-race-dectector)
-  * [Concurrency Patterns](#concurrency-patterns)
-    + [Pipeline](#pipeline)
-    + [Fan-out, Fan-in](#fan-out-fan-in)
-    + [Cancellation of Goroutines](#cancellation-of-goroutines)
+- [OS Threads and Goroutines](#os-threads-and-goroutines)
+- [Channels](#channels)
+- [Select](#select)
+- [Sync Package](#sync-package)
+  * [Mutex](#mutex)
+  * [Atomic](#atomic)
+  * [Cond](#cond)
+  * [Once](#once)
+  * [Pool](#pool)
+- [Go Race Dectector](#go-race-dectector)
+- [Concurrency Patterns](#concurrency-patterns)
+  * [Pipeline](#pipeline)
+  * [Fan-out, Fan-in](#fan-out-fan-in)
+  * [Cancellation of Goroutines](#cancellation-of-goroutines)
 
 <!-- tocstop -->
 
 Exercises and code walks included in this repository are part of Udemy course "concurrency in Go (Golang)".
 
-https://www.udemy.com/course/concurrency-in-go-golang/?referralCode=5AE5A041D5793C048954
-
-## Notes
 My changes start at commit 35 https://github.com/petherin/go-concurrency-exercises/commit/dba9ef06ecf604a01481b7b771258f3e0795a56a.
 
-### OS Threads and Goroutines
+https://www.udemy.com/course/concurrency-in-go-golang/?referralCode=5AE5A041D5793C048954
+
+## OS Threads and Goroutines
 Goroutines run sequentially in OS threads.
 
 Go will run as many OS threads as there are CPU cores on your machine. `runtime.GOMAXPROCS()` provides this number.
@@ -38,7 +36,7 @@ Parallelism is achieved by running goroutines sequentially on multiple os thread
 
 Each goroutine is given a time slice of 10ms.
 
-### Channels
+## Channels
 
 Default value for channel is `nil`. Reading/writing to a nil channel blocks forever. Create channels with `make` built-in function.
 
@@ -48,7 +46,7 @@ Owner of channel is a goroutine that instantiates, writes and closes a channel.
 
 Channel users should only have a read view into the channel.
 
-### Select
+## Select
 
 All `select` cases are considered simultaneously.
 
@@ -64,19 +62,19 @@ Empty `select` blocks forever.
 
 A nil channel in a `select` also blocks forever.
 
-### Sync Package
+## Sync Package
 
-#### Mutex
+### Mutex
 
 `Lock` and `Unlock` resources you want to be concurrent-safe.
 
 To allow multiple reads, but with writes that hold a lock exclusively, use `RLock` and `RUnlock`.
 
-#### Atomic
+### Atomic
 
 Atomic package can update variables in a concurrent-safe way.
 
-#### Cond
+### Cond
 
 Orchestrates goroutines that are waiting for a condition to be true.
 
@@ -86,13 +84,13 @@ Orchestrates goroutines that are waiting for a condition to be true.
 
 `Broadcast` wakes all goroutiones waiting on the `cond` variable.
 
-#### Once
+### Once
 
 `sync.Once` ensures only one call to `Do(funcValue)` ever calls the passed function, even on different goroutines.
 
 This is good for things like Singletons, or resources that multiple goroutines need but that only need to be initialised once.
 
-#### Pool
+### Pool
 
 Used to constrain the creation of expensive resources like db connections, network connections, and memory.
 
@@ -100,7 +98,7 @@ Maintains a pool of a fixed number of resources that can be reused.
 
 Code `Get`s resource from the pool and when finished, `Put`s it back in the pool for other code to use.
 
-### Go Race Dectector
+## Go Race Dectector
 
 Race detector find race conditions in Go code.
 
@@ -116,8 +114,8 @@ Binary needs to be race-enabled so race detector can work on it.
 
 Race-enabled binaries can be 10 times slower and use 10 times more memory, so don't release to production, use during testing phase.
 
-### Concurrency Patterns
-#### Pipeline
+## Concurrency Patterns
+### Pipeline
 
 Used to process streams or batches of data. It's a series of stages connected by channels.
 
@@ -133,7 +131,7 @@ Separating stages out provides us with good separation of concerns.
 
 If a stage is taking a long time we can increase the number of goroutines for that stage.
 
-#### Fan-out, Fan-in
+### Fan-out, Fan-in
 
 If we have a stage in our pipeline that is taking too long and blocking subsequent stages, we can use fan-out, fan-in.
 
@@ -145,7 +143,7 @@ They send the output on their own channels to `merge` goroutines. These merge th
 
 ![Fan-Out Fan-In Diagram](files/fanout-fanin-diagram.png "Fan-Out Fan-In Diagram")
 
-#### Cancellation of Goroutines
+### Cancellation of Goroutines
 
 In the above pipeline, `main()` is waiting for values on the channel from `merge()`.
 
