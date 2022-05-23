@@ -111,6 +111,12 @@ Separating stages out provides us with good separation of concerns.
 
 If a stage is taking a long time we can increase the number of goroutines for that stage.
 
+#### Fan-out, Fan-in
 
+If we have a stage in our pipeline that is taking too long and blocking subsequent stages, we can use fan-out, fan-in.
 
+![Fan-Out Fan-In Pattern](files/pipeline-fanout-fanin.png "Fan-Out Fan-In Pattern")
 
+Multiple goroutines for a stage are started. They take in items from the incoming channel and do work. This is fan-out.
+
+They send the output on their own channels to `merge` goroutines. These merge the incoming multiple channels into a single output channel. This is fan-in.
