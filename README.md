@@ -21,6 +21,7 @@
 - [Context Package](#context-package)
   * [Cancellation Functions](#cancellation-functions)
   * [Data Functions](#data-functions)
+  * [Context Package Idioms](#context-package-idioms)
 
 <!-- tocstop -->
 
@@ -200,3 +201,19 @@ Serves two primary purposes.
 `context.WithValue()` associates request-scoped values with a context.
 
 `ctx.Value()` returns the value associated with the provided key.
+
+### Context Package Idioms
+
+**Incoming requests to a server should create a context as early as possible.** `http.Request` already contains a context. Use `ctx` for the variable name.
+
+**Outgoing calls to servers should accept a context.** Higher level calls need to tell lower level calls how long they are willing to wait.
+
+**Pass a context to functions performing I/O.** Functions doing I/O should accept context as first parameter and respect timeouts and deadlines configured by the caller.
+
+**Any change to a context value creates a new context value that should be used going forward.**
+
+**When a context is cancelled, all context derived from it are also cancelled.**
+
+**Use TODO context only if we are unsure which context to use.** This can happen when a function is not responsible for creating the top level context. Or we haven't figured out where the actual context will come from.
+
+**Use context values only for request-scoped data.** Do not use context values to pass optional parameters to functions, which then become essential for its execution. A function should be able to work even with an empty context value.
