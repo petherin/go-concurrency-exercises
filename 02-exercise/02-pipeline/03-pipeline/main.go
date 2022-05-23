@@ -5,41 +5,72 @@ package main
 
 import (
 	"fmt"
+	"runtime"
 	"sync"
+	"time"
 )
 
-func generator(nums ...int) <-chan int {
+func generator(done <-chan struct{}, nums ...int) <-chan int {
 	out := make(chan int)
 
 	go func() {
+		// defer close(out) to ensure closure if goroutine terminated
+		defer close(out)
+
 		for _, n := range nums {
-			out <- n
+			select {
+			case out <- n:
+				// support termination of goroutine if signal sent on done channel
+			case <-done:
+				return
+			}
 		}
-		close(out)
 	}()
+
 	return out
 }
 
-func square(in <-chan int) <-chan int {
+func square(done <-chan struct{}, in <-chan int) <-chan int {
 	out := make(chan int)
+
 	go func() {
+		// defer close(out) to ensure closure if goroutine terminated
+		defer close(out)
+
 		for n := range in {
-			out <- n * n
+			select {
+			case out <- n * n:
+				// support termination of goroutine if signal sent on done channel
+			case <-done:
+				return
+			}
 		}
-		close(out)
 	}()
+
 	return out
 }
 
-func merge(cs ...<-chan int) <-chan int {
+func merge(done <-chan struct{}, cs ...<-chan int) <-chan int {
 	out := make(chan int)
 	var wg sync.WaitGroup
 
 	output := func(c <-chan int) {
+		// defer wg.Done() to ensure it's run even if done
+		// channel makes us return.
+		defer wg.Done()
+
 		for n := range c {
-			out <- n
+			// By adding a select we can catch signals on
+			// the done channel and return if one is seen.
+			// Otherwise we will perform the usual functionality
+			// this code is doing
+			// i.e. merging values on multiple channels to 'out'.
+			select {
+			case out <- n:
+			case <-done:
+				return
+			}
 		}
-		wg.Done()
 	}
 
 	wg.Add(len(cs))
@@ -55,14 +86,33 @@ func merge(cs ...<-chan int) <-chan int {
 }
 
 func main() {
-	in := generator(2, 3)
+	// Done channel to signal closures.
+	// Use empty struct{} as we don't want to send any data,
+	// just a signal.
+	done := make(chan struct{})
 
-	c1 := square(in)
-	c2 := square(in)
+	// Pass done channel to all stages of the pipeline.
+	// It is idiomatic to pass the done channel as the first
+	// paramater to the goroutine.
+	in := generator(done, 2, 3)
 
-	out := merge(c1, c2)
+	c1 := square(done, in)
+	c2 := square(done, in)
+
+	out := merge(done, c1, c2)
 
 	// TODO: cancel goroutines after receiving one value.
 
 	fmt.Println(<-out)
+
+	// After reading one value from out channel, close the done channel to signal
+	// goroutines to terminate.
+	close(done)
+
+	// To check if goroutines are being cancelled, allow 10ms
+	// for goroutines to terminate, then print NumGoroutine.
+	// There should only be 1, the main goroutine.
+	time.Sleep(10)
+	g := runtime.NumGoroutine()
+	fmt.Printf("number of goroutines active = %d\n", g)
 }

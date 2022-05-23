@@ -18,6 +18,7 @@
   * [Concurrency Patterns](#concurrency-patterns)
     + [Pipeline](#pipeline)
     + [Fan-out, Fan-in](#fan-out-fan-in)
+    + [Cancellation of Goroutines](#cancellation-of-goroutines)
 
 <!-- tocstop -->
 
@@ -141,3 +142,25 @@ If we have a stage in our pipeline that is taking too long and blocking subseque
 Multiple goroutines for a stage are started. They take in items from the incoming channel and do work. This is fan-out.
 
 They send the output on their own channels to `merge` goroutines. These merge the incoming multiple channels into a single output channel. This is fan-in.
+
+![Fan-Out Fan-In Diagram](files/fanout-fanin-diagram.png "Fan-Out Fan-In Diagram")
+
+#### Cancellation of Goroutines
+
+In the above pipeline, `main()` is waiting for values on the channel from `merge()`.
+
+If there are multiple values on the channel from `merge()` but `main()` only reads one, it will block execution.
+
+`merge()` goroutines will be blocked when trying to send more values.
+
+`square()` and `generator()` will also be blocked on sending because `merge()` is blocked.
+
+This is a goroutine leak.
+
+We need a way to cancel goroutines if something goes wrong like this.
+
+We can pass a read-only `done` channel to goroutines.
+
+Then we can close the channel to send broadcast signal to all goroutines.
+
+On receiving the signal on `done` channel, goroutines need to abandon work and terminate.
