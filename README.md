@@ -22,6 +22,7 @@
   * [Cancellation Functions](#cancellation-functions)
   * [Data Functions](#data-functions)
   * [Context Package Idioms](#context-package-idioms)
+  * [HTTP Server Timeouts with Context](#http-server-timeouts-with-context)
 
 <!-- tocstop -->
 
@@ -217,3 +218,21 @@ Serves two primary purposes.
 **Use TODO context only if we are unsure which context to use.** This can happen when a function is not responsible for creating the top level context. Or we haven't figured out where the actual context will come from.
 
 **Use context values only for request-scoped data.** Do not use context values to pass optional parameters to functions, which then become essential for its execution. A function should be able to work even with an empty context value.
+
+### HTTP Server Timeouts with Context
+
+These protect against DDOS attacks.
+
+There are four main timeouts in `net/http.Server`.
+
+* Read timeout
+* Read header timeout
+* Write timeout
+* Idle timeout
+
+![HTTP-Server-Timeouts](files/http_server_timeouts.png "HTTP Server Timeouts")
+
+Timeouts apply at network connection level only. HTTP handlers don't use them so they can run for a long time if not controlled.
+
+`net/http` has a TimeOutHandler to timeout HTTP handlers. If handler runs longer than this time limit, it returns a 503 Service Unavailable error and the configured HTML error message to the client.
+

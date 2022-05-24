@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
@@ -12,14 +13,18 @@ import (
 
 var db *sql.DB
 
-func slowQuery() error {
-	_, err := db.Exec("SELECT pg_sleep(5)")
+func slowQuery(ctx context.Context) error {
+	//_, err := db.Exec("SELECT pg_sleep(5)")
+	// Using ExecContext lets us pass the context so that
+	// when the ctx.Done channel is closed, the db operation
+	// terminates and returns error.
+	_, err := db.ExecContext(ctx, "SELECT pg_sleep(5)")
 	return err
 }
 
 func slowHandler(w http.ResponseWriter, req *http.Request) {
 	start := time.Now()
-	err := slowQuery()
+	err := slowQuery(req.Context()) // Sending req.Context() to slowQuery lets us use it to do cancellable calls
 	if err != nil {
 		log.Printf("Error: %s\n", err.Error())
 		return
@@ -29,6 +34,14 @@ func slowHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
+	// To run: go run main.go
+	// In another terminal run time curl -i localhost:8000
+	// Due to TimeoutHandler, we get the 'timeout!' message
+	// and a 503 after 1 second.
+	// The slowHandler will still take 5 seconds to complete though.
+	// We need a way to propagate time awareness down to the handler function.
+	// We can use req.Context() for this.
+
 	var err error
 
 	connstr := "host=localhost port=5432 user=alice password=pa$$word  dbname=wonderland sslmode=disable"
@@ -38,14 +51,23 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err = db.Ping(); err != nil {
+	// This creates a timeout context which can be used in db.PingContext() to detect if
+	// the db connection is still up. If ctx times out then we know the connection
+	// is probably down and we get an error.
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	//if err = db.Ping(); err != nil {
+	if err = db.PingContext(ctx); err != nil {
 		log.Fatal(err)
 	}
 
 	srv := http.Server{
 		Addr:         "localhost:8000",
 		WriteTimeout: 2 * time.Second,
-		Handler:      http.HandlerFunc(slowHandler),
+		Handler: http.TimeoutHandler(http.HandlerFunc(slowHandler),
+			1*time.Second,
+			"timeout!"),
 	}
 
 	if err := srv.ListenAndServe(); err != nil {
