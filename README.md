@@ -23,6 +23,43 @@
   * [Data Functions](#data-functions)
   * [Context Package Idioms](#context-package-idioms)
   * [HTTP Server Timeouts with Context](#http-server-timeouts-with-context)
+- [Code Examples](#code-examples)
+  * [Goroutines](#goroutines)
+    + [Basic starting of goroutines](#basic-starting-of-goroutines)
+    + [Server with multiple concurrent client connections](#server-with-multiple-concurrent-client-connections)
+    + [Using a WaitGroup to block until goroutine done](#using-a-waitgroup-to-block-until-goroutine-done)
+    + [Closures copy variables to goroutine so they persist even after function ends](#closures-copy-variables-to-goroutine-so-they-persist-even-after-function-ends)
+    + [Pass variable to goroutine so it operates on the current value](#pass-variable-to-goroutine-so-it-operates-on-the-current-value)
+  * [Channels](#channels-1)
+    + [goroutine gives main routine data on a channel](#goroutine-gives-main-routine-data-on-a-channel)
+    + [Iterate over unbuffered channel](#iterate-over-unbuffered-channel)
+    + [Range over buffered channel](#range-over-buffered-channel)
+    + [Send-only and receive-only channel directions](#send-only-and-receive-only-channel-directions)
+    + [Channel owner creates, writes to and closes channel. Consumers should only read from the channel](#channel-owner-creates-writes-to-and-closes-channel-consumers-should-only-read-from-the-channel)
+  * [Select](#select-1)
+    + [Select statement waiting for channels](#select-statement-waiting-for-channels)
+    + [time.After in a select for a timeout](#timeafter-in-a-select-for-a-timeout)
+    + [default case in select makes it non-blocking](#default-case-in-select-makes-it-non-blocking)
+  * [Sync Package](#sync-package-1)
+    + [Using sync.Mutex.Lock and Unlock to guard shared resources accessed by multiple goroutines](#using-syncmutexlock-and-unlock-to-guard-shared-resources-accessed-by-multiple-goroutines)
+    + [Using atomic.Add to update a variable with concurrent-safety](#using-atomicadd-to-update-a-variable-with-concurrent-safety)
+    + [sync.Cond to make goroutine Wait until a condition met, whereupon Signal woke it up](#synccond-to-make-goroutine-wait-until-a-condition-met-whereupon-signal-woke-it-up)
+    + [sync.Broadcast to wake up all Waiting goroutines](#syncbroadcast-to-wake-up-all-waiting-goroutines)
+    + [sync.Once to call function once only, even across goroutines](#synconce-to-call-function-once-only-even-across-goroutines)
+    + [Using a sync.Pool of resources](#using-a-syncpool-of-resources)
+  * [Race Detection](#race-detection)
+  * [Concurrent Web Crawler](#concurrent-web-crawler)
+  * [Concurrency Patterns](#concurrency-patterns-1)
+    + [Pipeline concurrency pattern](#pipeline-concurrency-pattern)
+    + [Fanin Fanout](#fanin-fanout)
+    + [Use done channel to cancel goroutines](#use-done-channel-to-cancel-goroutines)
+  * [Image Processing Pipeline](#image-processing-pipeline)
+  * [Context Package](#context-package-1)
+    + [Create cancellable context](#create-cancellable-context)
+    + [Create context with deadline](#create-context-with-deadline)
+    + [Create context with timeout to limit time spent waiting for server response](#create-context-with-timeout-to-limit-time-spent-waiting-for-server-response)
+    + [Associate context with a value](#associate-context-with-a-value)
+  * [HTTP Server Timeouts](#http-server-timeouts)
 
 <!-- tocstop -->
 
@@ -236,3 +273,100 @@ Timeouts apply at network connection level only. HTTP handlers don't use them so
 
 `net/http` has a TimeOutHandler to timeout HTTP handlers. If handler runs longer than this time limit, it returns a 503 Service Unavailable error and the configured HTML error message to the client.
 
+## Code Examples
+
+### Goroutines
+#### Basic starting of goroutines
+https://github.com/petherin/go-concurrency-exercises/blob/dba9ef06ecf604a01481b7b771258f3e0795a56a/01-exercise/01-goroutines/01-hello/main.go
+
+#### Server with multiple concurrent client connections
+https://github.com/petherin/go-concurrency-exercises/commit/49dc2c5a2eed96247a78136bce78cb7ced9c135b
+
+#### Using a WaitGroup to block until goroutine done
+https://github.com/petherin/go-concurrency-exercises/commit/731e894ce5db6384a265be605a50ea4dc355a0b2
+
+#### Closures copy variables to goroutine so they persist even after function ends
+https://github.com/petherin/go-concurrency-exercises/commit/e2aab16ab7e1c6d8991c3c85f636054281685c46
+
+#### Pass variable to goroutine so it operates on the current value
+https://github.com/petherin/go-concurrency-exercises/commit/f39439f8a22957cae497f9610c3fdb18eff457c9
+
+### Channels
+#### goroutine gives main routine data on a channel
+https://github.com/petherin/go-concurrency-exercises/commit/792223586e416af6f2b5405f965d4a74f437aa9f
+
+#### Iterate over unbuffered channel
+https://github.com/petherin/go-concurrency-exercises/commit/19fa7ac6e5a79b9cc6590cf54f3c90e6b9b700c8
+
+#### Range over buffered channel
+https://github.com/petherin/go-concurrency-exercises/commit/b759a51603d4a72cf7314b435e7d9eaba9da6a50
+
+#### Send-only and receive-only channel directions
+https://github.com/petherin/go-concurrency-exercises/commit/143bb7f67646e11020ab91ced5e8bc680f131352
+
+#### Channel owner creates, writes to and closes channel. Consumers should only read from the channel
+https://github.com/petherin/go-concurrency-exercises/commit/5f1156c664b2c553b7909406a020e4e24378112f
+
+### Select
+#### Select statement waiting for channels
+https://github.com/petherin/go-concurrency-exercises/commit/405ce475e322ba516a6d621eb49dc10141575f2e
+
+#### time.After in a select for a timeout
+https://github.com/petherin/go-concurrency-exercises/commit/9cf6c4c1c2cd2eab6446b7ee2bc3c462ad16c889
+
+#### default case in select makes it non-blocking
+https://github.com/petherin/go-concurrency-exercises/commit/f5bcb00fc10951ff5a1f44d3d52cb06b3e675474
+
+### Sync Package
+#### Using sync.Mutex.Lock and Unlock to guard shared resources accessed by multiple goroutines
+https://github.com/petherin/go-concurrency-exercises/commit/8209c3150fdb275a6d5517bc826ef0f3ebcdcc2e
+
+#### Using atomic.Add to update a variable with concurrent-safety
+https://github.com/petherin/go-concurrency-exercises/commit/2bda27dae88d7c84ff096bc750f4faf9e35b6af1
+
+#### sync.Cond to make goroutine Wait until a condition met, whereupon Signal woke it up
+https://github.com/petherin/go-concurrency-exercises/commit/691737baca93446c7c96e1901ef8abb375fff335
+
+#### sync.Broadcast to wake up all Waiting goroutines
+https://github.com/petherin/go-concurrency-exercises/commit/342da5580d08d84da110ba044cfd2b712e7ef293
+
+#### sync.Once to call function once only, even across goroutines
+https://github.com/petherin/go-concurrency-exercises/commit/fb91dce525e2219f7de241ed42f79bf839184006
+
+#### Using a sync.Pool of resources
+https://github.com/petherin/go-concurrency-exercises/commit/77af390ea04bf5d2ed074f1c9e015bc4a6fdc6e6
+
+### Race Detection
+https://github.com/petherin/go-concurrency-exercises/commit/0b1a83299d00f4be5ea9ff2dcb4eaf42567c8f9a
+
+### Concurrent Web Crawler
+https://github.com/petherin/go-concurrency-exercises/commit/c3e95ec54e53265eccebc9dcbf4c4c5778e8f5a1
+
+### Concurrency Patterns
+#### Pipeline concurrency pattern
+https://github.com/petherin/go-concurrency-exercises/commit/26b75cb7163a8adec494e4b02acad6b545096869
+
+#### Fanin Fanout
+https://github.com/petherin/go-concurrency-exercises/commit/b1d575aa06d99dab1f2f885a85b21184d4416782
+
+#### Use done channel to cancel goroutines
+https://github.com/petherin/go-concurrency-exercises/commit/cb512c9c667b98ec786b706c4c1045b079b486c8
+
+### Image Processing Pipeline
+https://github.com/petherin/go-concurrency-exercises/commit/e152f2282b595c74c1e5dc3080cdd83d60dac821
+
+### Context Package
+#### Create cancellable context
+https://github.com/petherin/go-concurrency-exercises/commit/f673f6f3847c913c30e24ba6ad54363673aefc1c
+
+#### Create context with deadline
+https://github.com/petherin/go-concurrency-exercises/commit/2b767de12ebcdbc7fdade13a5646a3867b1a86e8
+
+#### Create context with timeout to limit time spent waiting for server response
+https://github.com/petherin/go-concurrency-exercises/commit/7b6ff358a057c6a8d07a504b2371f92fb07ba9d8
+
+#### Associate context with a value
+https://github.com/petherin/go-concurrency-exercises/commit/803e053aa68cbe72e182741103047b75cd8090d7
+
+### HTTP Server Timeouts
+https://github.com/petherin/go-concurrency-exercises/commit/4048ab52009ee996491651014e0d45c44850dd36

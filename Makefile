@@ -22,7 +22,7 @@ HELP_FUN = \
 	print "\n"; }
 
 toc: ##@other Generate the Table of Contents in README.md
-	docker run -v $(PWD):/code -it docker.artifactory.euw.platformservices.io/gaming/services-build-container:latest /bin/sh -c 'npx markdown-toc -i /code/README.md'
+	docker run --platform=linux/amd64 -v $(PWD):/code -it node:lts-alpine3.17 /bin/sh -c 'npx --yes markdown-toc -i /code/README.md'
 
 help: ##@other Show this help.
 	@perl -e '$(HELP_FUN)' $(MAKEFILE_LIST)
