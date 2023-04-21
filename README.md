@@ -60,6 +60,7 @@
     + [Create context with timeout to limit time spent waiting for server response](#create-context-with-timeout-to-limit-time-spent-waiting-for-server-response)
     + [Associate context with a value](#associate-context-with-a-value)
   * [HTTP Server Timeouts](#http-server-timeouts)
+  * [Own Exercises](#own-exercises)
 
 <!-- tocstop -->
 
@@ -340,3 +341,6 @@ Timeouts apply at network connection level only. HTTP handlers don't use them so
 #### [Associate context with a value](https://github.com/petherin/go-concurrency-exercises/commit/803e053aa68cbe72e182741103047b75cd8090d7)
 
 ### [HTTP Server Timeouts](https://github.com/petherin/go-concurrency-exercises/commit/4048ab52009ee996491651014e0d45c44850dd36)
+
+### Own Exercises
+[Basic pool of workers using WaitGroup to wait for them to finish](https://github.com/petherin/go-concurrency-exercises/blob/c9398d2ee3eb6243a25ef307936c1f14368127e2/cmd/cli/main.go)
