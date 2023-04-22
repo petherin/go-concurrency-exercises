@@ -1,10 +1,14 @@
 package main
 
-import "log"
+import (
+	"log"
+	"sync"
+)
 
 // Based on https://go.dev/blog/pipelines
 func main() {
-	basicPipeline()
+	// basicPipeline()
+	fanoutFanin()
 }
 
 // basicPipeline sets up the pipeline with 3 stages, a gen stage (source or producer).
@@ -62,5 +66,59 @@ func sq(in <-chan int) <-chan int {
 		}
 		close(out)
 	}()
+	return out
+}
+
+// fanoutFanin runs the gen stage once, as in the basic pipeline.
+// But then it calls sq twice, giving us 2 channels. There is a goroutine running inside each sq.
+// Send the 2 channels to merge(), and range over the return value of merge(). This is also
+// a channel. Log out the values of the channel until the channel is closed (range will stop
+// looping when this happens).
+func fanoutFanin() {
+	// gen some numbers into a channel
+	in := gen(2, 3)
+
+	// Distribute the sq work across two goroutines that both read from in.
+	c1 := sq(in)
+	c2 := sq(in)
+
+	// Consume the merged output from c1 and c2.
+	for n := range merge(c1, c2) {
+		log.Println(n) // 4 then 9, or 9 then 4
+	}
+}
+
+// merge takes in n channels. It merges them into a single out channel.
+// It defines a function called `output` that takes in a channel, ranges over its values,
+// sending each one to the single out channel. Then it calls wg.Done().
+// Once the `output` channel is defined, add the number of incoming channels to the waitgroup.
+// Range over the incoming channels and call the output function in a goroutine.
+// While the output functions are running in goroutines, run another goroutine to wait for
+// the waitgroup and then close the out channel.
+// While this goroutine is running, return out.
+func merge(cs ...<-chan int) <-chan int {
+	var wg sync.WaitGroup
+	out := make(chan int)
+
+	// Start an output goroutine for each input channel in cs.  output
+	// copies values from c to out until c is closed, then calls wg.Done.
+	output := func(c <-chan int) {
+		for n := range c {
+			out <- n
+		}
+		wg.Done()
+	}
+	wg.Add(len(cs))
+	for _, c := range cs {
+		go output(c)
+	}
+
+	// Start a goroutine to close out once all the output goroutines are
+	// done.  This must start after the wg.Add call.
+	go func() {
+		wg.Wait()
+		close(out)
+	}()
+
 	return out
 }

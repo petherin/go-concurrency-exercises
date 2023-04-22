@@ -348,3 +348,6 @@ Timeouts apply at network connection level only. HTTP handlers don't use them so
 
 #### Code based on https://go.dev/blog/pipelines
 Basic pipeline
+
+Fan-out, fan-in
+
