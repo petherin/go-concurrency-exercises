@@ -61,6 +61,7 @@
     + [Associate context with a value](#associate-context-with-a-value)
   * [HTTP Server Timeouts](#http-server-timeouts)
   * [Own Exercises](#own-exercises)
+    + [Code based on https://go.dev/blog/pipelines](#code-based-on-httpsgodevblogpipelines)
 
 <!-- tocstop -->
 
@@ -344,3 +345,6 @@ Timeouts apply at network connection level only. HTTP handlers don't use them so
 
 ### Own Exercises
 [Basic pool of workers using WaitGroup to wait for them to finish](https://github.com/petherin/go-concurrency-exercises/blob/c9398d2ee3eb6243a25ef307936c1f14368127e2/cmd/cli/main.go)
+
+#### Code based on https://go.dev/blog/pipelines
+Basic pipeline
