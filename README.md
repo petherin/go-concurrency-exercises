@@ -351,3 +351,4 @@ Basic pipeline
 
 Fan-out, fan-in
 
+Fan-out, fan-in with a `done`channel. All stages of the pipeline take the `done` channel and listen for it in a `select`, returning from their goroutine(s) when they get a signal. The goroutines do a defer close of the channel they create to ensure it is closed on exit.
