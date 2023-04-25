@@ -62,6 +62,10 @@
   * [HTTP Server Timeouts](#http-server-timeouts)
   * [Own Exercises](#own-exercises)
     + [Code based on https://go.dev/blog/pipelines](#code-based-on-httpsgodevblogpipelines)
+      - [Basic pipeline](#basic-pipeline)
+      - [Fan-out, fan-in](#fan-out-fan-in)
+      - [Fan-out, fan-in with a `done` channel](#fan-out-fan-in-with-a-done-channel)
+      - [Hashing a directory of files.](#hashing-a-directory-of-files)
 
 <!-- tocstop -->
 
@@ -347,8 +351,13 @@ Timeouts apply at network connection level only. HTTP handlers don't use them so
 [Basic pool of workers using WaitGroup to wait for them to finish](https://github.com/petherin/go-concurrency-exercises/blob/c9398d2ee3eb6243a25ef307936c1f14368127e2/cmd/cli/main.go)
 
 #### Code based on https://go.dev/blog/pipelines
-Basic pipeline
+##### [Basic pipeline](https://github.com/petherin/go-concurrency-exercises/blob/85ddf46cda124c28017003f2b2d4e81d1ecd9418/cmd/pipeline/main.go)
 
-Fan-out, fan-in
+##### [Fan-out, fan-in](https://github.com/petherin/go-concurrency-exercises/commit/7bab1a17f70c4dac92b170006ecd95eb35cc523e)
 
-Fan-out, fan-in with a `done`channel. All stages of the pipeline take the `done` channel and listen for it in a `select`, returning from their goroutine(s) when they get a signal. The goroutines do a defer close of the channel they create to ensure it is closed on exit.
+##### [Fan-out, fan-in with a `done` channel](https://github.com/petherin/go-concurrency-exercises/commit/78a7ca34cd145d74f8f8c34d3ee29912682e5087)
+All stages of the pipeline take the `done` channel and listen for it in a `select`, returning from their goroutine(s) when they get a signal. The goroutines do a defer close of the channel they create to ensure it is closed on exit.
+
+##### Hashing a directory of files.
+The first example does not use concurrency. Run at command line with `go run main.go .`
+
