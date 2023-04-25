@@ -65,7 +65,8 @@
       - [Basic pipeline](#basic-pipeline)
       - [Fan-out, fan-in](#fan-out-fan-in)
       - [Fan-out, fan-in with a `done` channel](#fan-out-fan-in-with-a-done-channel)
-      - [Hashing a directory of files.](#hashing-a-directory-of-files)
+      - [Hashing a directory of files (non-concurrent version)](#hashing-a-directory-of-files-non-concurrent-version)
+      - [Hashing a directory of files (concurrent version)](#hashing-a-directory-of-files-concurrent-version)
 
 <!-- tocstop -->
 
@@ -358,6 +359,12 @@ Timeouts apply at network connection level only. HTTP handlers don't use them so
 ##### [Fan-out, fan-in with a `done` channel](https://github.com/petherin/go-concurrency-exercises/commit/78a7ca34cd145d74f8f8c34d3ee29912682e5087)
 All stages of the pipeline take the `done` channel and listen for it in a `select`, returning from their goroutine(s) when they get a signal. The goroutines do a defer close of the channel they create to ensure it is closed on exit.
 
-##### Hashing a directory of files.
-The first example does not use concurrency. Run at command line with `go run main.go .`
+##### [Hashing a directory of files (non-concurrent version)](https://github.com/petherin/go-concurrency-exercises/commit/039a0aa50b4ec40b82dd74178a6bc40184b9b3e9)
+The first example does not use concurrency. It's from the `Digesting a Tree` bit of https://go.dev/blog/pipelines. 
 
+Run at command line with `go run main.go .` in the `cmd/serial` path.
+
+##### Hashing a directory of files (concurrent version)
+A concurrent version of hashing files in a folder that creates a goroutine per file.
+
+Run at command line with `go run parallel.go .` in the `cmd/parallel` path.
